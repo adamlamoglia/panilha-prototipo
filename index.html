@@ -134,7 +134,7 @@
 </style>
 </head>
 <body>
-<div class="note">Protótipo de apresentação · proposta de Adam Lamoglia · não é um app oficial</div>
+<div class="note"><b>Protótipo de demonstração</b> · proposta de Adam Lamoglia para a Panilha · não é um app oficial e não processa pedidos nem pagamentos</div>
 
 <div class="phone" id="phone">
   <div class="toast" id="toast"></div>
@@ -195,6 +195,7 @@
   <section class="screen" id="pix">
     <div class="card pix">
       <h2 style="margin-top:0">Pague com Pix</h2>
+      <div style="font-size:12px;color:var(--brand);font-weight:600;margin-bottom:6px">Simulação · nenhum pagamento real</div>
       <div style="color:var(--muted);font-size:13px">Total <b id="pixTotal" style="color:var(--ink)"></b></div>
       <div class="qr"></div>
       <button class="cta" onclick="paid()">Já paguei</button>
@@ -233,7 +234,7 @@
       <div class="sum"><span>Sinal agora (50%)</span><span id="oSig"></span></div>
       <div class="sum total"><span>Restante na retirada</span><span id="oRest"></span></div>
     </div>
-    <button class="cta" onclick="toast('Encomenda confirmada! Sinal pago via Pix ✓')">Confirmar e pagar o sinal</button>
+    <button class="cta" onclick="toast('Simulação: encomenda confirmada ✓')">Confirmar e pagar o sinal</button>
   </section>
 
   <!-- FIDELIDADE -->
