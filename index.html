@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#7b212d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Panilha App — Protótipo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f1e4e0;
+    --app: #fbf6f0;
+    --ink: #3a1218;
+    --muted: #7a5a5f;
+    --brand: #7b212d;
+    --brand-soft: #f6e6e4;
+    --gold: #c88a2c;
+    --line: #eedcd8;
+    --card: #ffffff;
+    --ok: #2f7a4b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; padding: 24px 16px;
+  }
+  .note { font-size: 12px; color: var(--muted); text-align: center; }
+  .phone {
+    width: 390px; height: 800px; max-width: 100%;
+    background: var(--app);
+    border-radius: 44px; border: 10px solid #1d1410;
+    box-shadow: 0 30px 60px -20px rgba(70,15,25,.4);
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+  }
+  @media (max-width: 440px) {
+    body { padding: 0; justify-content: flex-start; }
+    .note { padding: 8px 16px; }
+    .phone { width: 100%; height: 100dvh; border: 0; border-radius: 0; }
+  }
+  .screen { flex: 1; overflow-y: auto; padding: 18px 18px 90px; display: none; }
+  .screen.active { display: block; animation: in .22s ease-out; }
+  @keyframes in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  h1, h2, .serif { font-family: Fredoka, Arial, sans-serif; }
+  h1 { font-size: 26px; line-height: 1.15; }
+  h2 { font-size: 19px; margin: 22px 0 10px; }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .logo { font-family: Fredoka, sans-serif; font-weight: 700; font-size: 22px; color: var(--brand); letter-spacing: -.3px; }
+  .store { font-size: 12px; background: var(--brand-soft); color: var(--brand); padding: 6px 10px; border-radius: 99px; font-weight: 600; border: 0; }
+  .hero {
+    background: linear-gradient(135deg, #7b212d, #a8384a);
+    color: #fff; border-radius: 22px; padding: 20px; position: relative; overflow: hidden;
+  }
+  .hero p { font-size: 13px; opacity: .9; margin-top: 6px; max-width: 68%; position: relative; z-index: 1; }
+  .hero .pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.18); padding: 5px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #ffd58a; box-shadow: 0 0 0 4px rgba(255,213,138,.3); }
+  .hero .emoji { position: absolute; right: -6px; bottom: -14px; font-size: 84px; opacity: .9; }
+  .quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+  .quick button {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 6px;
+    font: 600 12px Inter; color: var(--ink); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .quick button span { font-size: 24px; }
+  .quick button:active { transform: scale(.97); }
+  .points-mini { margin-top: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; flex: 1; }
+  .bar i { display: block; height: 100%; background: var(--gold); border-radius: 99px; }
+
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 6px 0 4px; }
+  .chip { flex: none; padding: 7px 13px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); font: 500 13px Inter; color: var(--ink); cursor: pointer; }
+  .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .item { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .thumb { width: 62px; height: 62px; border-radius: 14px; background: var(--brand-soft); display: grid; place-items: center; font-size: 30px; flex: none; }
+  .item .info { flex: 1; min-width: 0; }
+  .item b { font-size: 14px; font-weight: 600; display: block; }
+  .item small { color: var(--muted); font-size: 12px; }
+  .item .price { font-weight: 600; font-size: 14px; margin-top: 3px; }
+  .add { width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--brand); color: #fff; font-size: 20px; cursor: pointer; flex: none; }
+  .add:active { transform: scale(.92); }
+
+  .cartbar {
+    position: absolute; left: 14px; right: 14px; bottom: 82px;
+    background: var(--ink); color: #fff; border-radius: 16px; padding: 13px 16px;
+    display: none; justify-content: space-between; align-items: center; font-weight: 600; font-size: 14px; cursor: pointer;
+    box-shadow: 0 10px 24px -8px rgba(0,0,0,.4);
+  }
+  .cartbar.show { display: flex; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-bottom: 12px; }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin: 12px 0 6px; }
+  select, input { width: 100%; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line); font: 14px Inter; background: #fff; color: var(--ink); }
+  .row { display: flex; gap: 10px; }
+  .row > div { flex: 1; }
+  .cta { width: 100%; margin-top: 16px; padding: 14px; border-radius: 14px; border: 0; background: var(--brand); color: #fff; font: 600 15px Inter; cursor: pointer; }
+  .cta.ghost { background: var(--brand-soft); color: var(--brand); }
+  .opts { display: flex; gap: 8px; }
+  .opt { flex: 1; padding: 11px; border: 1px solid var(--line); border-radius: 12px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; background: #fff; }
+  .opt.on { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); }
+  .sum { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; }
+  .sum.total { font-weight: 700; font-size: 16px; border-top: 1px solid var(--line); margin-top: 6px; padding-top: 12px; }
+
+  .loyal { background: linear-gradient(160deg, #5a1520, #7b212d); color: #fff; border-radius: 22px; padding: 20px; }
+  .loyal .big { font-family: Fredoka, sans-serif; font-size: 44px; font-weight: 700; color: #ffd58a; }
+  .loyal .bar { background: rgba(255,255,255,.15); margin-top: 12px; }
+  .reward { display: flex; justify-content: space-between; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .reward button { border: 0; padding: 7px 12px; border-radius: 99px; font: 600 12px Inter; cursor: pointer; background: var(--brand-soft); color: var(--brand); }
+  .reward button:disabled { opacity: .45; cursor: default; }
+
+  .pix { text-align: center; }
+  .qr { width: 170px; height: 170px; margin: 14px auto; border-radius: 14px; background:
+    repeating-conic-gradient(var(--ink) 0 25%, #fff 0 50%) 0 0/22px 22px; border: 10px solid #fff; outline: 1px solid var(--line); }
+  .status { display: flex; gap: 10px; align-items: flex-start; margin: 12px 0; text-align: left; }
+  .status i { width: 22px; height: 22px; border-radius: 50%; background: var(--line); flex: none; display: grid; place-items: center; font-style: normal; font-size: 12px; color: #fff; }
+  .status.done i { background: var(--ok); }
+  .status small { display: block; color: var(--muted); font-size: 12px; }
+
+  .tabbar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 72px;
+    background: rgba(251,246,240,.96); border-top: 1px solid var(--line);
+    display: flex; justify-content: space-around; align-items: center; padding-bottom: 6px;
+  }
+  .tabbar button { background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; font: 500 11px Inter; color: var(--muted); cursor: pointer; padding: 6px 10px; }
+  .tabbar button span { font-size: 20px; filter: grayscale(1); opacity: .7; }
+  .tabbar button.on { color: var(--brand); font-weight: 600; }
+  .tabbar button.on span { filter: none; opacity: 1; }
+  .toast { position: absolute; top: 18px; left: 50%; transform: translate(-50%, -80px); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 99px; font-size: 13px; transition: transform .25s ease; white-space: nowrap; z-index: 5; }
+  .toast.show { transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+<div class="note">Protótipo de apresentação · proposta de Adam Lamoglia · não é um app oficial</div>
+
+<div class="phone" id="phone">
+  <div class="toast" id="toast"></div>
+
+  <!-- INÍCIO -->
+  <section class="screen active" id="home">
+    <div class="top">
+      <div class="logo">Panilha</div>
+      <button class="store" onclick="cycleStore()" id="storeBtn">📍 Vila Laura ▾</button>
+    </div>
+    <div class="hero">
+      <div class="pill"><span class="dot"></span> Fornada saindo agora</div>
+      <h1 class="serif">Pão francês<br>quentinho às 17h</h1>
+      <p>Peça agora e retire no balcão sem pegar fila.</p>
+      <div class="emoji">🥖</div>
+    </div>
+    <div class="quick">
+      <button onclick="go('menu')"><span>🛍️</span>Pedir agora</button>
+      <button onclick="go('order')"><span>🎂</span>Encomendar</button>
+      <button onclick="go('loyalty')"><span>⭐</span>Meus pontos</button>
+    </div>
+    <div class="points-mini" onclick="go('loyalty')">
+      <div style="font-size:26px">☕</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px">Faltam <span class="need">60</span> pontos para um café grátis</div>
+        <div class="bar"><i class="fill" style="width:70%"></i></div>
+      </div>
+    </div>
+    <h2>Mais pedidos hoje</h2>
+    <div id="popular"></div>
+  </section>
+
+  <!-- CARDÁPIO -->
+  <section class="screen" id="menu">
+    <h1 class="serif">Cardápio</h1>
+    <div class="chips" id="cats"></div>
+    <div id="items"></div>
+  </section>
+
+  <!-- CARRINHO -->
+  <section class="screen" id="cart">
+    <h1 class="serif">Seu pedido</h1>
+    <div class="card" id="cartList"></div>
+    <div class="card">
+      <label style="margin-top:0">Como prefere receber?</label>
+      <div class="opts">
+        <div class="opt on" onclick="pick(this)">Retirar no balcão</div>
+        <div class="opt" onclick="pick(this)">Entrega</div>
+      </div>
+      <label>Horário</label>
+      <select><option>Assim que ficar pronto (~15 min)</option><option>17:00 — fornada da tarde</option><option>18:00</option></select>
+    </div>
+    <button class="cta" onclick="go('pix')">Pagar com Pix</button>
+    <button class="cta ghost" onclick="go('menu')">Adicionar mais itens</button>
+  </section>
+
+  <!-- PIX / STATUS -->
+  <section class="screen" id="pix">
+    <div class="card pix">
+      <h2 style="margin-top:0">Pague com Pix</h2>
+      <div style="color:var(--muted);font-size:13px">Total <b id="pixTotal" style="color:var(--ink)"></b></div>
+      <div class="qr"></div>
+      <button class="cta" onclick="paid()">Já paguei</button>
+    </div>
+    <div class="card" id="track" style="display:none">
+      <div class="status done"><i>✓</i><div><b>Pagamento confirmado</b><small>Você ganhou <span id="earned"></span> pontos</small></div></div>
+      <div class="status done"><i>✓</i><div><b>Pedido recebido pela loja</b><small>Panilha Vila Laura</small></div></div>
+      <div class="status"><i></i><div><b>Separando seu pedido</b><small>Avisamos quando estiver no balcão</small></div></div>
+      <button class="cta ghost" onclick="go('home')">Voltar ao início</button>
+    </div>
+  </section>
+
+  <!-- ENCOMENDAS -->
+  <section class="screen" id="order">
+    <h1 class="serif">Encomendas</h1>
+    <p style="color:var(--muted);font-size:13px;margin-top:6px">Bolos, tortas e salgados para festa, com dia e hora marcados.</p>
+    <div class="card" style="margin-top:14px">
+      <label style="margin-top:0">O que você quer encomendar?</label>
+      <select id="oItem" onchange="calcOrder()">
+        <option value="160">Bolo de chocolate com brigadeiro — 2 kg (R$ 160)</option>
+        <option value="185">Torta de morango — 2 kg (R$ 185)</option>
+        <option value="0.9">Salgados de festa — o cento (R$ 90)</option>
+        <option value="140">Kit café da manhã — 6 pessoas (R$ 140)</option>
+      </select>
+      <label>Quantidade</label>
+      <input id="oQty" type="number" min="1" value="1" oninput="calcOrder()">
+      <div class="row">
+        <div><label>Data</label><input type="date" id="oDate"></div>
+        <div><label>Horário</label><select><option>09:00</option><option>12:00</option><option>16:00</option></select></div>
+      </div>
+      <label>Escrita no bolo (opcional)</label>
+      <input placeholder="Ex.: Feliz aniversário, Maria!">
+    </div>
+    <div class="card">
+      <div class="sum"><span>Encomenda</span><span id="oSub"></span></div>
+      <div class="sum"><span>Sinal agora (50%)</span><span id="oSig"></span></div>
+      <div class="sum total"><span>Restante na retirada</span><span id="oRest"></span></div>
+    </div>
+    <button class="cta" onclick="toast('Encomenda confirmada! Sinal pago via Pix ✓')">Confirmar e pagar o sinal</button>
+  </section>
+
+  <!-- FIDELIDADE -->
+  <section class="screen" id="loyalty">
+    <h1 class="serif" style="margin-bottom:14px">Clube Panilha</h1>
+    <div class="loyal">
+      <div style="font-size:13px;opacity:.8">Seus pontos</div>
+      <div class="big" id="pts">140</div>
+      <div style="font-size:13px;opacity:.85">R$ 1 = 1 ponto · nível <b>Fornada de Ouro</b></div>
+      <div class="bar"><i class="fill" style="width:70%"></i></div>
+    </div>
+    <h2>Troque seus pontos</h2>
+    <div id="rewards"></div>
+  </section>
+
+  <div class="cartbar" id="cartbar" onclick="go('cart')"><span id="cartCount"></span><span id="cartTotal"></span></div>
+
+  <nav class="tabbar">
+    <button class="on" data-t="home" onclick="go('home')"><span>🏠</span>Início</button>
+    <button data-t="menu" onclick="go('menu')"><span>🥐</span>Cardápio</button>
+    <button data-t="order" onclick="go('order')"><span>🎂</span>Encomendas</button>
+    <button data-t="loyalty" onclick="go('loyalty')"><span>⭐</span>Clube</button>
+  </nav>
+</div>
+
+<script>
+const products = [
+  { id: 1, cat: 'Pães', name: 'Pão francês', desc: '10 unidades', price: 9.9, e: '🥖', pop: true },
+  { id: 2, cat: 'Pães', name: 'Pão de queijo', desc: '6 unidades', price: 14.5, e: '🧀' },
+  { id: 3, cat: 'Pães', name: 'Pão de milho', desc: 'Unidade', price: 7.5, e: '🌽' },
+  { id: 4, cat: 'Doces', name: 'Bolo de aipim', desc: 'Fatia', price: 9.0, e: '🍰', pop: true },
+  { id: 5, cat: 'Doces', name: 'Sonho de creme', desc: 'Unidade', price: 8.5, e: '🍩' },
+  { id: 6, cat: 'Salgados', name: 'Coxinha de frango', desc: 'Unidade', price: 8.0, e: '🍗', pop: true },
+  { id: 7, cat: 'Salgados', name: 'Empada de camarão', desc: 'Unidade', price: 11.0, e: '🥧' },
+  { id: 8, cat: 'Café', name: 'Cappuccino', desc: '300 ml', price: 12.0, e: '☕' },
+  { id: 9, cat: 'Café', name: 'Suco de cajá', desc: '400 ml', price: 10.0, e: '🧃' },
+];
+const rewards = [
+  { name: '☕ Café expresso', cost: 80 },
+  { name: '🥖 10 pães franceses', cost: 120 },
+  { name: '🍰 Fatia de bolo', cost: 150 },
+  { name: '🎂 R$ 30 off em encomenda', cost: 300 },
+];
+const stores = ['Vila Laura', 'Brotas', 'N. Sra. do Resgate'];
+let storeIdx = 0, cat = 'Pães', cart = {}, points = 140;
+const brl = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+function itemHTML(p) {
+  return `<div class="item"><div class="thumb">${p.e}</div><div class="info"><b>${p.name}</b><small>${p.desc}</small><div class="price">${brl(p.price)}</div></div><button class="add" onclick="add(${p.id})" aria-label="Adicionar ${p.name}">+</button></div>`;
+}
+function renderMenu() {
+  const cats = [...new Set(products.map(p => p.cat))];
+  document.getElementById('cats').innerHTML = cats.map(c => `<button class="chip ${c === cat ? 'on' : ''}" onclick="cat='${c}';renderMenu()">${c}</button>`).join('');
+  document.getElementById('items').innerHTML = products.filter(p => p.cat === cat).map(itemHTML).join('');
+}
+function renderPopular() { document.getElementById('popular').innerHTML = products.filter(p => p.pop).map(itemHTML).join(''); }
+function total() { return Object.entries(cart).reduce((s, [id, q]) => s + products.find(p => p.id == id).price * q, 0); }
+function add(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  toast(products.find(p => p.id === id).name + ' adicionado');
+  renderCart();
+}
+function renderCart() {
+  const n = Object.values(cart).reduce((a, b) => a + b, 0);
+  const bar = document.getElementById('cartbar');
+  const current = document.querySelector('.screen.active').id;
+  bar.classList.toggle('show', n > 0 && ['home', 'menu'].includes(current));
+  document.getElementById('cartCount').textContent = `Ver pedido · ${n} ${n === 1 ? 'item' : 'itens'}`;
+  document.getElementById('cartTotal').textContent = brl(total());
+  document.getElementById('cartList').innerHTML = n ? Object.entries(cart).map(([id, q]) => {
+    const p = products.find(x => x.id == id);
+    return `<div class="sum"><span>${q}× ${p.name}</span><span>${brl(p.price * q)}</span></div>`;
+  }).join('') + `<div class="sum total"><span>Total</span><span>${brl(total())}</span></div>` : '<div style="color:var(--muted);font-size:14px">Seu carrinho está vazio.</div>';
+  document.getElementById('pixTotal').textContent = brl(total());
+}
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  if (id === 'pix') { document.getElementById('track').style.display = 'none'; document.querySelector('.pix').style.display = 'block'; }
+  renderCart();
+  document.getElementById(id).scrollTop = 0;
+}
+function paid() {
+  const earned = Math.floor(total());
+  points += earned;
+  document.getElementById('earned').textContent = earned;
+  document.querySelector('.pix').style.display = 'none';
+  document.getElementById('track').style.display = 'block';
+  cart = {};
+  renderLoyalty();
+}
+function pick(el) { el.parentNode.querySelectorAll('.opt').forEach(o => o.classList.remove('on')); el.classList.add('on'); }
+function cycleStore() {
+  storeIdx = (storeIdx + 1) % stores.length;
+  document.getElementById('storeBtn').textContent = `📍 ${stores[storeIdx]} ▾`;
+  toast('Loja alterada para ' + stores[storeIdx]);
+}
+function calcOrder() {
+  const v = parseFloat(document.getElementById('oItem').value);
+  const q = Math.max(1, parseInt(document.getElementById('oQty').value) || 1);
+  const sub = v < 1 ? v * 100 * q : v * q;
+  document.getElementById('oSub').textContent = brl(sub);
+  document.getElementById('oSig').textContent = brl(sub / 2);
+  document.getElementById('oRest').textContent = brl(sub / 2);
+}
+function renderLoyalty() {
+  document.getElementById('pts').textContent = points;
+  const next = rewards.find(r => r.cost > points) || rewards[rewards.length - 1];
+  const pct = Math.min(100, points / next.cost * 100);
+  document.querySelectorAll('.fill').forEach(f => f.style.width = pct + '%');
+  document.querySelectorAll('.need').forEach(n => n.textContent = Math.max(0, 80 - points) || 0);
+  document.querySelector('.points-mini div div').innerHTML = points >= 80
+    ? `Você já pode trocar ${points} pontos por prêmios`
+    : `Faltam <span class="need">${80 - points}</span> pontos para um café grátis`;
+  document.getElementById('rewards').innerHTML = rewards.map((r, i) =>
+    `<div class="reward"><span>${r.name}<br><small style="color:var(--muted)">${r.cost} pontos</small></span><button ${r.cost > points ? 'disabled' : ''} onclick="redeem(${i})">Trocar</button></div>`).join('');
+}
+function redeem(i) { points -= rewards[i].cost; renderLoyalty(); toast('Prêmio resgatado! Mostre no balcão 🎉'); }
+let tt;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 1800);
+}
+const d = new Date(); d.setDate(d.getDate() + 3);
+document.getElementById('oDate').value = d.toISOString().slice(0, 10);
+renderMenu(); renderPopular(); renderCart(); calcOrder(); renderLoyalty();
+</script>
+</body>
+</html>
